@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Код подключения Threads</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { max-width: 40rem; margin: 0 auto; padding: 2.5rem 1.25rem 4rem;
+         font: 17px/1.6 -apple-system, "Segoe UI", Roboto, sans-serif; }
+  h1 { font-size: 1.5rem; margin-bottom: .25rem; }
+  .sub { opacity: .7; margin-top: 0; }
+  #box { margin: 1.5rem 0; padding: 1rem; border: 1px solid currentColor; border-radius: .6rem;
+         word-break: break-all; font-family: ui-monospace, Menlo, Consolas, monospace;
+         font-size: .95rem; opacity: .95; }
+  button { font: inherit; padding: .6rem 1.1rem; border-radius: .5rem; border: 1px solid currentColor;
+           background: transparent; color: inherit; cursor: pointer; }
+  button:hover { opacity: .8; }
+  .note { font-size: .92rem; opacity: .75; margin-top: 1.5rem; }
+  .err { color: #b3261e; }
+</style>
+
+<h1>Код подключения Threads</h1>
+<p class="sub">Скопируйте строку ниже и пришлите её в чат — этого достаточно.</p>
+
+<div id="box">читаю адрес…</div>
+<button id="copy" hidden>Скопировать код</button>
+
+<p class="note">Код действует один час и срабатывает один раз. Если не успели —
+просто откройте ссылку подключения заново. Сам код доступа к аккаунту не даёт:
+он бесполезен без секрета приложения, который хранится на сервере.</p>
+
+<script>
+  // Страница ничего никуда не отправляет: она только достаёт код из адреса и
+  // показывает его. Приёмник статический, потому что портал согласования живёт
+  // в закрытой сети и снаружи недоступен.
+  (function () {
+    var box = document.getElementById("box");
+    var btn = document.getElementById("copy");
+    var q = new URLSearchParams(location.search);
+    var code = (q.get("code") || "").replace(/#_$/, "");
+    var error = q.get("error_description") || q.get("error");
+
+    if (code) {
+      box.textContent = code;
+      btn.hidden = false;
+      btn.addEventListener("click", function () {
+        navigator.clipboard.writeText(code).then(function () {
+          btn.textContent = "Скопировано ✓";
+        }, function () {
+          btn.textContent = "Не вышло — выделите вручную";
+        });
+      });
+    } else if (error) {
+      box.className = "err";
+      box.textContent = "Доступ не выдан: " + error;
+    } else {
+      box.textContent = "В адресе нет кода. Откройте ссылку подключения ещё раз.";
+    }
+  })();
+</script>
